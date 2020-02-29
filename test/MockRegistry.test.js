@@ -20,7 +20,7 @@ contract('MockRegistry', (accounts) => {
       await truffleAssert.eventEmitted(tx, "NewRegistration", {registrant: accounts[1], name: nameToRegister});
     });
 
-    it('should not allow a name to be registered a second time', async () => {
+    it('should not allow a name to be registered twice', async () => {
       const mockRegistry = await MockRegistry.deployed();
       const nameToRegister = web3.utils.stringToHex("radical.eth");
       await truffleAssert.reverts(mockRegistry.register(nameToRegister, {from: accounts[1]})); 

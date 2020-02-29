@@ -21,8 +21,8 @@ contract('End to End', (accounts) => {
       radicalManager = await RadicalManager.new({from: radicalDeployerAccount});
   });
 
-  describe("Register, radicalise, sell, etc", () => {
-    it('does it all', async () => {
+  describe("Register, radicalise, sell, collect rent", () => {
+    it('follows the happy path correctly', async () => {
     
       //register
       const nameToUse = web3.utils.stringToHex("radical.eth");
@@ -31,7 +31,12 @@ contract('End to End', (accounts) => {
 
       // radicalise
       const hashOfName = web3.utils.keccak256(nameToUse);
-      const tx2 = await mockRegistry.safeTransferFrom(accounts[1], radicalManager.address, hashOfName, {from: accounts[1]});
+      const tx2 = await mockRegistry.safeTransferFrom(
+          accounts[1],
+          radicalManager.address,
+          hashOfName, 
+          Buffer.from('0x0000000000000000000000000000000000000000000000000de0b6b3a76400000000000000000000000000000000000000000000000000000000000000001000', 'hex'),
+          { from : ownerOfUnderlyingToken });
 
     });
   });
