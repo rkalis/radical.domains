@@ -24,3 +24,8 @@ yarn test
 ```
 yarn truffle migrate --network rinkeby
 ```
+
+### Notes
+
+Web3.js doesn't support reverse lookup, use ethers.js.
+

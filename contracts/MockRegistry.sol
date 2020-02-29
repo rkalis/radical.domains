@@ -9,15 +9,10 @@ contract MockRegistry is ERC721 {
         address resolver;
         uint64 ttl;
     }
-
+    
     mapping (string => Record) records;
 
-    function register(string name, address owner) {
+    function register(string memory name, address owner) public {
         records[name].owner = msg.sender;
     }
-
-
-
-
-
 }
