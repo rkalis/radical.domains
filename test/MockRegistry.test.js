@@ -15,15 +15,21 @@ contract('MockRegistry', (accounts) => {
 
     it('should allow a name to be registered', async () => {
       const mockRegistry = await MockRegistry.deployed();
-      const nameToRegister = web3.utils.stringToHex("richard.eth");
+      const nameToRegister = web3.utils.stringToHex("radical.eth");
       const tx = await mockRegistry.register(nameToRegister, {from: accounts[1]});
-      truffleAssert.eventEmitted(tx, "NewRegistration", {registrant: accounts[1], name: nameToRegister});
+      await truffleAssert.eventEmitted(tx, "NewRegistration", {registrant: accounts[1], name: nameToRegister});
     });
 
     it('should not allow a name to be registered a second time', async () => {
       const mockRegistry = await MockRegistry.deployed();
-      const nameToRegister = web3.utils.stringToHex("richard.eth");
-      truffleAssert.reverts(mockRegistry.register(nameToRegister, {from: accounts[1]})); 
+      const nameToRegister = web3.utils.stringToHex("radical.eth");
+      await truffleAssert.reverts(mockRegistry.register(nameToRegister, {from: accounts[1]})); 
+    });
+
+    it('should not allow registration of empty string', async () => {
+      const mockRegistry = await MockRegistry.deployed();
+      const nameToRegister = web3.utils.stringToHex("");
+      await truffleAssert.reverts(mockRegistry.register(nameToRegister, {from: accounts[1]})); 
     });
 
     // it supports transferring to another address
