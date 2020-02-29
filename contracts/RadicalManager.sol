@@ -8,6 +8,7 @@ import "./RadicalLeaseholdToken.sol";
 contract RadicalManager is IERC721Receiver {
     using SafeMath for uint256;
 
+    ERC721 ENS = ERC721(address(0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e));
     RadicalLeaseholdToken leasehold;
     RadicalFreeholdToken freehold;
     bytes4 constant ERC721_RECEIVED = 0x150b7a02;
@@ -67,6 +68,14 @@ contract RadicalManager is IERC721Receiver {
         return ERC721_RECEIVED;
     }
 
+
+    function unradicalise(uint256 tokenId) public{
+        require(freehold.ownerOf(tokenId) == msg.sender, "Only freehold owners can unradicalise tokens");
+        require(leasehold.ownerOf(tokenId) == msg.sender, "Only leasehold owners can unradicalise tokens");
+        freehold.burn(msg.sender, tokenId);
+        leasehold.burn(msg.sender, tokenId);
+        ENS.transferFrom(address(this), msg.sender, tokenId);
+    }
     // Deposit rent as prepayment
     function depositRent(uint256 tokenId) public payable onlyLeaseholderOrContract(tokenId) {
         _depositedRent[tokenId] = _depositedRent[tokenId].add(msg.value);
