@@ -1,3 +1,4 @@
+/* global web3, artifacts, contract, before */
 const MockRegistry = artifacts.require('MockRegistry');
 const RadicalFreeholdToken = artifacts.require('RadicalFreeholdToken');
 const RadicalLeaseholdToken = artifacts.require('RadicalLeaseholdToken');
@@ -23,20 +24,21 @@ contract('End to End', (accounts) => {
 
   describe("Register, radicalise, sell, collect rent", () => {
     it('follows the happy path correctly', async () => {
-    
+
       //register
       const nameToUse = web3.utils.stringToHex("radical.eth");
-      const tx1 = await mockRegistry.register(nameToUse, {from: accounts[1]});
-      await truffleAssert.eventEmitted(tx1, "NewRegistration", {registrant: accounts[1], name: nameToUse});
+      const tx1 = await mockRegistry.register(nameToUse, {from: ownerOfUnderlyingToken});
+      truffleAssert.eventEmitted(tx1, "NewRegistration", {registrant: ownerOfUnderlyingToken, name: nameToUse});
 
       // radicalise
-      const hashOfName = web3.utils.keccak256(nameToUse);
-      const tx2 = await mockRegistry.safeTransferFrom(
-          accounts[1],
-          radicalManager.address,
-          hashOfName, 
-          Buffer.from('0x0000000000000000000000000000000000000000000000000de0b6b3a76400000000000000000000000000000000000000000000000000000000000000001000', 'hex'),
-          { from : ownerOfUnderlyingToken });
+      const tokenId = web3.utils.keccak256(nameToUse);
+      const tx2 = await mockRegistry.methods['safeTransferFrom(address,address,uint256,bytes)'](
+        ownerOfUnderlyingToken,
+        radicalManager.address,
+        tokenId,
+        '0x0000000000000000000000000000000000000000000000000de0b6b3a76400000000000000000000000000000000000000000000000000000000000000001000',
+        { from : ownerOfUnderlyingToken }
+      );
 
     });
   });
