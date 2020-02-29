@@ -9,9 +9,9 @@ contract RadicalManager is IERC721Receiver {
     RadicalFreeholdToken freehold;
     bytes4 constant ERC721_RECEIVED = 0xf0b9e5ba;
 
-    constructor(address _leasehold, address _freehold) public {
-        leasehold = RadicalLeaseholdToken(_leasehold);
-        freehold = RadicalFreeholdToken(_freehold);
+    constructor() public {
+        leasehold = new RadicalLeaseholdToken();
+        freehold = new RadicalFreeholdToken();
     }
 
     function onERC721Received(
