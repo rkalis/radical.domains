@@ -10,7 +10,7 @@ contract RadicalManager is IERC721Receiver {
 
     RadicalLeaseholdToken leasehold;
     RadicalFreeholdToken freehold;
-    bytes4 constant ERC721_RECEIVED = 0xf0b9e5ba;
+    bytes4 constant ERC721_RECEIVED = 0x150b7a02;
 
     mapping (uint256 => uint256) _depositedRent;
     mapping (uint256 => uint256) _lastRentSettlement;
@@ -61,8 +61,8 @@ contract RadicalManager is IERC721Receiver {
         bytes memory data
     ) public virtual override returns (bytes4) {
         // TODO: Check that only ENS tokens can be used
-        (uint256 price, uint256 rent) = _parseBytes(data);
-        leasehold.mint(from, tokenId, price, rent);
+        (uint256 price, uint256 rate) = _parseBytes(data);
+        leasehold.mint(from, tokenId, price, rate);
         freehold.mint(from, tokenId);
         return ERC721_RECEIVED;
     }
