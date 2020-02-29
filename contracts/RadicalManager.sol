@@ -14,12 +14,28 @@ contract RadicalManager is IERC721Receiver {
         freehold = new RadicalFreeholdToken();
     }
 
+    function _parseBytes(bytes memory b) private returns (uint256, uint256) {
+        uint256 price;
+        uint256 rent;
+        for(uint i=0;i<64;i++){
+            if(i < 32){
+                price = price + uint8(b[i])*(2**(8*(32-(i+1)))); // 1, 2, 3
+            }
+            else{
+                rent = rent + uint8(b[i])*(2**(8*(32-(i-31)))); // 33, 34
+            }
+        }
+        return (price, rent);
+    }
+
     function onERC721Received(
         address operator,
         address from,
         uint256 tokenId,
         bytes memory data
     ) public virtual override returns (bytes4) {
+        (uint256 price, uint256 rent) = _parseBytes(data);
+        leasehold.mint(from, tokenId, price, rent);
         return ERC721_RECEIVED;
     }
 
