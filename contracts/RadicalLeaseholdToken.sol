@@ -1,8 +1,9 @@
 pragma solidity ^0.6.0;
 
 import "openzeppelin-solidity/contracts/token/ERC721/ERC721.sol";
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
-contract RadicalLeaseholdToken is ERC721 {
+contract RadicalLeaseholdToken is ERC721, Ownable {
     mapping (uint256 => uint256) private _tokenRent;
     mapping (uint256 => uint256) private _tokenPrice;
 
@@ -42,8 +43,7 @@ contract RadicalLeaseholdToken is ERC721 {
         return _tokenRent[tokenId];
     }
 
-    function mint(address to, uint256 tokenId, uint256 initialPrice, uint256 rent) public /* onlyManager */ {
-        // TODO: Permissioning
+    function mint(address to, uint256 tokenId, uint256 initialPrice, uint256 rent) public onlyOwner {
         _mint(to, tokenId);
         _tokenRent[tokenId] = rent;
         _tokenPrice[tokenId] = initialPrice;

@@ -1,7 +1,10 @@
 pragma solidity ^0.6.0;
 
 import "openzeppelin-solidity/contracts/token/ERC721/ERC721.sol";
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
-contract RadicalFreeholdToken is ERC721 {
-    // Probably doesn't really need any specific functionality
+contract RadicalFreeholdToken is ERC721, Ownable {
+    function mint(address to, uint256 tokenId) public onlyOwner {
+        _mint(to, tokenId);
+    }
 }
