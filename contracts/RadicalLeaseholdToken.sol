@@ -50,6 +50,12 @@ contract RadicalLeaseholdToken is ERC721, Ownable {
         _tokenRate[tokenId] = rate;
     }
 
+    function burn(address to, uint256 tokenId) public onlyOwner{
+        _burn(to, tokenId);
+        delete _tokenPrice[tokenId];
+        delete _tokenRate[tokenId];
+    }
+
     // Set a new price for the token
     // Causes existing deposited rents to be collected by the freeholder based on the old price
     // CAUTION: If the rent balance is too low this will cause repossession

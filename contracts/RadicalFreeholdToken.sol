@@ -7,4 +7,8 @@ contract RadicalFreeholdToken is ERC721, Ownable {
     function mint(address to, uint256 tokenId) public onlyOwner {
         _mint(to, tokenId);
     }
+
+    function burn(address to, uint256 tokenId) public onlyOwner {
+        _burn(to, tokenId);
+    }
 }
