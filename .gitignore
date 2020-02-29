@@ -5,3 +5,4 @@ bridge.log
 .env
 dist/
 yarn-error.log
+npm-debug.log
