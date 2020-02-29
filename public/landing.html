@@ -3,7 +3,7 @@
     <title>Radical domains</title>
     <link href="main.css" rel="stylesheet" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/cmu-serif" type="text/css"/>
+    
   </head>
 
   <body>
@@ -13,7 +13,14 @@
         <p id="description">The best way to monetize your domain!</p>
       </div>
 
-      <button class="button" id="submit" type="submit">Connect web3</button>
+      <button 
+        class="button"
+        id="submit"
+        type="submit"
+        data-dh-feature="network"
+        data-dh-property-enable>Connect web3
+      </button>
+    
     </div>
 
     <section class="footer">
@@ -23,5 +30,6 @@
           </div>
       </div>
     </section>
+    <script src="https://package.dapphero.io/main.js" id="dh-apiKey" data-api="1583005887260x819827526048677900"></script>
   </body>
 </html>
