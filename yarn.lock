@@ -8833,10 +8833,10 @@ open@^7.0.2:
     is-docker "^2.0.0"
     is-wsl "^2.1.1"
 
-openzeppelin-solidity@^2.5.0:
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/openzeppelin-solidity/-/openzeppelin-solidity-2.5.0.tgz#829a9bcfc928619dd96c44bd893b180044ff51aa"
-  integrity sha512-I0yRC3nff9Kn2LDWuz02fuw0EuomVQ9Z8lHzdqh8P9BiOUzIk8frQRxn/a1Kva3StF6hwPP+Dh3/SQ2ily1Pow==
+openzeppelin-solidity@^3.0.0-beta.0:
+  version "3.0.0-beta.0"
+  resolved "https://registry.yarnpkg.com/openzeppelin-solidity/-/openzeppelin-solidity-3.0.0-beta.0.tgz#9be6d4ffc1975a13e01594c1ad9bcc70eec58e65"
+  integrity sha512-lwCPDIj2CMBcUGOHAMtJbWn2Rb1R6pJJeH/Gzari/VEt5XwgU/fWVo9TRjWyE9KBhH+36mlSKpCaskzvn+KMZw==
 
 opn@^5.5.0:
   version "5.5.0"
