@@ -4,12 +4,16 @@ import "openzeppelin-solidity/contracts/token/ERC721/ERC721.sol";
 
 contract MockRegistry is ERC721 {
 
-    mapping (uint => string) public hashToName;
+    mapping (uint => bytes) public hashToName;
 
     event NewRegistration(address registrant, string name);
 
-    function register(string memory name) public {
-        uint nameHash = uint(keccak256("hello"));
+    function register(bytes memory name) public {
+        require(name.length > 0, "Domain name should be at least 1 character");
+
+        uint nameHash = uint(keccak256(name));
+        require(hashToName[nameHash].length == 0, "Already registered"); // Already registered
+
         hashToName[nameHash] = name;
         _safeMint(msg.sender, nameHash);
     }
