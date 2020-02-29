@@ -1,43 +1,140 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
+    <title>Radical domains</title>
+    <link href="main.css" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
+
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+    <div class="main">
+      <div class="title">
+        <img src="radicals.svg" alt="radicals logo" class="logo">
+        <p id="description">The best way to monetize your domain!</p>
+      </div>
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+      <button 
+        class="button"
+        id="submit"
+        type="submit"
+        data-dh-feature="network"
+        data-dh-property-enable>Connect web3
+      </button>
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
+      <div  class="connection">You are connected to:
+        <div
+            data-dh-feature="network"
+            data-dh-property-name="true">
+            no network
+        </div>
+      </div>
+
+      <div class="searchbar">
+        <div class="searchbar-header">What ENS name are you interested in?</div>
+        <div class="wrap">
+          <div class="search">
+             <input type="text" class="searchTerm" placeholder="e.g. ens.eth">
+             <button type="submit" class="searchButton">
+               Enquire
+            </button>
+          </div>
+       </div>
+        <button class="button" id="submit" type="submit">BUY</button>
+      </div>
+
+
+      <div class="row">
+        <div class="column" id="left-column">
+          <div class="column-name">My ENS names</div>
+          <table class="column-table">
+            <tr>
+              <td>Kiki.eth</td>
+              <td>price</td>
+              <td>%</td>
+              <td><button class="table-button" id="submit" type="submit">RADICALIZE</button></td>
+            </tr>
+            <tr>
+              <td>Rosco.eth</td>
+              <td>price</td>
+              <td>%</td>
+              <td><button class="table-button" id="submit" type="submit">RADICALIZE</button></td>
+            </tr>
+            <tr>
+              <td>Evert.eth</td>
+              <td>price</td>
+              <td>%</td>
+              <td><button class="table-button" id="submit" type="submit">RADICALIZE</button></td>
+            </tr>
+            <tr>
+              <td>Richard.eth</td>
+              <td>price</td>
+              <td>%</td>
+              <td><button class="table-button" id="submit" type="submit">RADICALIZE</button></td>
+            </tr>
+            <tr>
+              <td>Jenny.eth</td>
+              <td>price</td>
+              <td>%</td>
+              <td><button class="table-button" id="submit" type="submit">RADICALIZE</button></td>
+            </tr>
+            <tr>
+              <td>Radical.eth</td>
+              <td>price</td>
+              <td>%</td>
+              <td><button class="table-button" id="submit" type="submit">RADICALIZE</button></td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="column" id="center-column">
+          <div class="column-name">My freeholds</div>
+          <table class="column-table">
+            <tr>
+              <td>Max.eth</td>
+              <td>Earned to date</td>
+              <td>At %</td>
+            </tr>
+            <tr>
+              <td>pepo.eth</td>
+              <td>Earned to date</td>
+              <td>At %</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="column" id="right-column">
+          <div class="column-name">My leaseholds</div>
+          <table class="column-table">
+            <tr>
+              <td>Kiki.eth</td>
+              <td>Payed to date</td>
+              <td>At %</td>
+              <td><button class="table-button" id="submit" type="submit">ASSESS</button></td>
+            </tr>
+            <tr>
+              <td>Rosco.eth</td>
+              <td>Payed to date</td>
+              <td>At %</td>
+              <td><button class="table-button" id="submit" type="submit">ASSESS</button></td>
+            </tr>
+            <tr>
+              <td>Evert.eth</td>
+              <td>Payed to date</td>
+              <td>At %</td>
+              <td><button class="table-button" id="submit" type="submit">ASSESS</button></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+
+    </div>
+    <section class="footer">
+      <div class="container-fluid">
+          <div class="col-md-12">
+            Made by The Radicals.
+          </div>
+      </div>
+    </section>
+    <script src="https://package.dapphero.io/main.js" id="dh-apiKey" data-api="1583005887260x819827526048677900"></script>
   </body>
 </html>
