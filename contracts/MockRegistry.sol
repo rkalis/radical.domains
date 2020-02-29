@@ -6,7 +6,7 @@ contract MockRegistry is ERC721 {
 
     mapping (uint => bytes) public hashToName;
 
-    event NewRegistration(address registrant, string name);
+    event NewRegistration(address registrant, uint tokenId, bytes name);
 
     function register(bytes memory name) public {
         require(name.length > 0, "Domain name should be at least 1 character");
@@ -16,6 +16,8 @@ contract MockRegistry is ERC721 {
 
         hashToName[nameHash] = name;
         _safeMint(msg.sender, nameHash);
+
+        emit NewRegistration(msg.sender, nameHash, name);
     }
 
 
