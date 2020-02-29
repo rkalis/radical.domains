@@ -1,0 +1,120 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/bin/node', '/usr/bin/npm', 'install', '-g', 'yarn' ]
+2 info using npm@3.5.2
+3 info using node@v8.10.0
+4 silly loadCurrentTree Starting
+5 silly install loadCurrentTree
+6 silly install readGlobalPackageData
+7 silly fetchPackageMetaData yarn
+8 silly fetchNamedPackageData yarn
+9 silly mapToRegistry name yarn
+10 silly mapToRegistry using default registry
+11 silly mapToRegistry registry https://registry.npmjs.org/
+12 silly mapToRegistry uri https://registry.npmjs.org/yarn
+13 verbose request uri https://registry.npmjs.org/yarn
+14 verbose request no auth needed
+15 info attempt registry request try #1 at 1:30:46 PM
+16 verbose request id 5aa4dbbd8138a7a6
+17 verbose etag W/"8e6eb2f323c30ad7561866d1d40cfc96"
+18 verbose lastModified Wed, 05 Feb 2020 19:14:24 GMT
+19 http request GET https://registry.npmjs.org/yarn
+20 http 304 https://registry.npmjs.org/yarn
+21 verbose headers { date: 'Sat, 29 Feb 2020 12:30:46 GMT',
+21 verbose headers   connection: 'keep-alive',
+21 verbose headers   'set-cookie':
+21 verbose headers    [ '__cfduid=da8d83497231439e09fca6363daac1a4a1582979446; expires=Mon, 30-Mar-20 12:30:46 GMT; path=/; domain=.npmjs.org; HttpOnly; SameSite=Lax' ],
+21 verbose headers   'cf-ray': '56caa6c24b04e5f8-LHR',
+21 verbose headers   age: '943',
+21 verbose headers   'cache-control': 'public, max-age=300',
+21 verbose headers   etag: '"8e6eb2f323c30ad7561866d1d40cfc96"',
+21 verbose headers   'last-modified': 'Wed, 05 Feb 2020 19:14:24 GMT',
+21 verbose headers   vary: 'Accept-Encoding',
+21 verbose headers   'cf-cache-status': 'HIT',
+21 verbose headers   'expect-ct': 'max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"',
+21 verbose headers   server: 'cloudflare' }
+22 silly get cb [ 304,
+22 silly get   { date: 'Sat, 29 Feb 2020 12:30:46 GMT',
+22 silly get     connection: 'keep-alive',
+22 silly get     'set-cookie':
+22 silly get      [ '__cfduid=da8d83497231439e09fca6363daac1a4a1582979446; expires=Mon, 30-Mar-20 12:30:46 GMT; path=/; domain=.npmjs.org; HttpOnly; SameSite=Lax' ],
+22 silly get     'cf-ray': '56caa6c24b04e5f8-LHR',
+22 silly get     age: '943',
+22 silly get     'cache-control': 'public, max-age=300',
+22 silly get     etag: '"8e6eb2f323c30ad7561866d1d40cfc96"',
+22 silly get     'last-modified': 'Wed, 05 Feb 2020 19:14:24 GMT',
+22 silly get     vary: 'Accept-Encoding',
+22 silly get     'cf-cache-status': 'HIT',
+22 silly get     'expect-ct': 'max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"',
+22 silly get     server: 'cloudflare' } ]
+23 verbose etag https://registry.npmjs.org/yarn from cache
+24 verbose get saving yarn to /home/evert/.npm/registry.npmjs.org/yarn/.cache.json
+25 silly install normalizeTree
+26 silly loadCurrentTree Finishing
+27 silly loadIdealTree Starting
+28 silly install loadIdealTree
+29 silly cloneCurrentTree Starting
+30 silly install cloneCurrentTreeToIdealTree
+31 silly cloneCurrentTree Finishing
+32 silly loadShrinkwrap Starting
+33 silly install loadShrinkwrap
+34 silly loadShrinkwrap Finishing
+35 silly loadAllDepsIntoIdealTree Starting
+36 silly install loadAllDepsIntoIdealTree
+37 silly resolveWithNewModule yarn@1.22.0 checking installable status
+38 silly cache add args [ 'yarn', null ]
+39 verbose cache add spec yarn
+40 silly cache add parsed spec Result {
+40 silly cache add   raw: 'yarn',
+40 silly cache add   scope: null,
+40 silly cache add   name: 'yarn',
+40 silly cache add   rawSpec: '',
+40 silly cache add   spec: 'latest',
+40 silly cache add   type: 'tag' }
+41 silly addNamed yarn@latest
+42 verbose addNamed "latest" is being treated as a dist-tag for yarn
+43 info addNameTag [ 'yarn', 'latest' ]
+44 silly mapToRegistry name yarn
+45 silly mapToRegistry using default registry
+46 silly mapToRegistry registry https://registry.npmjs.org/
+47 silly mapToRegistry uri https://registry.npmjs.org/yarn
+48 verbose addNameTag registry:https://registry.npmjs.org/yarn not in flight; fetching
+49 verbose get https://registry.npmjs.org/yarn not expired, no request
+50 silly addNameTag next cb for yarn with tag latest
+51 silly addNamed yarn@1.22.0
+52 verbose addNamed "1.22.0" is a plain semver version for yarn
+53 silly cache afterAdd yarn@1.22.0
+54 verbose afterAdd /home/evert/.npm/yarn/1.22.0/package/package.json not in flight; writing
+55 verbose afterAdd /home/evert/.npm/yarn/1.22.0/package/package.json written
+56 silly loadAllDepsIntoIdealTree Finishing
+57 silly idealTree:prePrune lib
+57 silly idealTree:prePrune └── yarn@1.22.0
+58 silly loadIdealTree Finishing
+59 silly currentTree lib
+60 silly idealTree lib
+60 silly idealTree └── yarn@1.22.0
+61 silly generateActionsToTake Starting
+62 silly install generateActionsToTake
+63 warn checkPermissions Missing write access to /usr/local/lib/node_modules
+64 silly rollbackFailedOptional Starting
+65 silly rollbackFailedOptional Finishing
+66 silly runTopLevelLifecycles Starting
+67 silly runTopLevelLifecycles Finishing
+68 silly install printInstalled
+69 verbose stack Error: EACCES: permission denied, access '/usr/local/lib/node_modules'
+70 verbose cwd /home/evert/radical.domains
+71 error Linux 5.3.0-28-generic
+72 error argv "/usr/bin/node" "/usr/bin/npm" "install" "-g" "yarn"
+73 error node v8.10.0
+74 error npm  v3.5.2
+75 error path /usr/local/lib/node_modules
+76 error code EACCES
+77 error errno -13
+78 error syscall access
+79 error Error: EACCES: permission denied, access '/usr/local/lib/node_modules'
+79 error  { Error: EACCES: permission denied, access '/usr/local/lib/node_modules'
+79 error   errno: -13,
+79 error   code: 'EACCES',
+79 error   syscall: 'access',
+79 error   path: '/usr/local/lib/node_modules' }
+80 error Please try running this command again as root/Administrator.
+81 verbose exit [ -13, true ]
