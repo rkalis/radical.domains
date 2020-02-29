@@ -36,6 +36,7 @@ contract RadicalManager is IERC721Receiver {
     ) public virtual override returns (bytes4) {
         (uint256 price, uint256 rent) = _parseBytes(data);
         leasehold.mint(from, tokenId, price, rent);
+        freehold.mint(from, tokenId);
         return ERC721_RECEIVED;
     }
 
