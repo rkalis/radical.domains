@@ -1,6 +1,7 @@
 import './App.css'
 import React, { Component, ReactNode, ChangeEvent } from 'react'
 import { Provider } from 'ethers/providers'
+import { ethers } from 'ethers'
 import axios from 'axios'
 // import { AddressInfo, TokenData } from './interfaces'
 // import { isRegistered } from './util'
@@ -31,6 +32,16 @@ class NameQuery extends Component<NameQueryProps, NameQueryState> {
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
       }
+
+
+    async loadData() {
+        if (!this.props.signer) return
+
+        // const hashToLookup : Uint8Array = ethers.utils.keccak256(this.state.name);
+
+
+    }
+    
 
     handleSubmit() {
 
