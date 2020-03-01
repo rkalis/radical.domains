@@ -18,7 +18,7 @@ class App extends Component<{}, AppState> {
 
   async componentDidMount() {
     // Set default provider for READ operations
-    this.setState({ provider: getDefaultProvider() })
+    this.setState({ provider: getDefaultProvider('rinkeby') }) // Hardcoded rinkeby
 
     // Connect with Web3 provider for WRITE opertions if access is already granted
     if (window.ethereum || window.web3) {
@@ -54,7 +54,7 @@ class App extends Component<{}, AppState> {
         </div>
         {this.state.signer
           ? <NameQuery provider={this.state.provider} signer={this.state.signer} />
-          : <div>
+          : <div className="text-center">
               <p>Please use an Ethereum-enabled browser (like Metamask or Trust Wallet) to use Radical Domains</p>
               <button onClick={() => this.connectWeb3()}>Connect web3</button>
             </div>

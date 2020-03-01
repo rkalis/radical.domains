@@ -1,11 +1,13 @@
 import './App.css'
-import React, { Component, ReactNode, ChangeEvent } from 'react'
+import React, { Component, ReactNode } from 'react'
 import { Provider } from 'ethers/providers'
-import { ethers } from 'ethers'
-import axios from 'axios'
-// import { AddressInfo, TokenData } from './interfaces'
-// import { isRegistered } from './util'
-import { Signer } from 'ethers'
+import { ethers, Signer } from 'ethers'
+import { BaseRegistrar, RadicalManager, RadicalFreehold, RadicalLeasehold } from './abis'
+import { registrarAddress, managerAddress, freeholdAddress, leaseholdAddress } from './addresses'
+import ENSInfo from './ENSInfo'
+import FreeholdInfo from './FreeholdInfo'
+import LeaseholdInfo from './LeaseholdInfo'
+import { BigNumber } from 'ethers/utils'
 
 type NameQueryProps = {
   provider?: Provider
@@ -14,53 +16,84 @@ type NameQueryProps = {
 
 type NameQueryState = {
   name: string;
-  nameHash: string;
-  amHolder?: boolean;
-  amFreeHolder?: boolean;
-  amLeaseHolder? : boolean;
+  address: string;
+  registrar?: ethers.Contract;
+  radicalManager?: ethers.Contract;
+  radicalFreehold?: ethers.Contract;
+  radicalLeasehold?: ethers.Contract;
+  tokenId?: BigNumber
 }
 
 class NameQuery extends Component<NameQueryProps, NameQueryState> {
-    
     state : NameQueryState = {
-        name: '',
-        nameHash: ''
+        name: 'radical5.eth',
+        address: ''
     }
 
-    constructor(props : NameQueryProps) {
-        super(props);
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-      }
+    componentDidMount() {
+        this.loadData()
+    }
 
+    componentDidUpdate(prevProps: NameQueryProps) {
+        if (this.props.signer === prevProps.signer) return
+        this.loadData()
+      }
 
     async loadData() {
         if (!this.props.signer) return
+        if (!this.props.provider) return
 
-        // const hashToLookup : Uint8Array = ethers.utils.keccak256(this.state.name);
+        const registrar = new ethers.Contract(registrarAddress, BaseRegistrar, this.props.signer)
+        const radicalManager = new ethers.Contract(managerAddress, RadicalManager, this.props.provider)
+        const radicalFreehold = new ethers.Contract(freeholdAddress, RadicalFreehold, this.props.provider)
+        const radicalLeasehold = new ethers.Contract(leaseholdAddress, RadicalLeasehold, this.props.signer)
 
+        const address = await this.props.signer.getAddress()
+        const tokenId = ethers.utils.bigNumberify(ethers.utils.keccak256(Buffer.from(this.state.name.split('.')[0], 'utf8')));
+        console.log(tokenId.toString())
 
+        this.setState({ registrar, radicalManager, radicalFreehold, radicalLeasehold, address, tokenId })
     }
-    
 
-    handleSubmit() {
-
-    }
-
-    handleChange(event : any) {
-        this.setState({...this.state, name: event.target.value });
-
+    handleChange = (event: any) => {
+        const tokenId = ethers.utils.bigNumberify(ethers.utils.keccak256(Buffer.from(event.target.value.split('.')[0], 'utf8')));
+        this.setState({ name: event.target.value, tokenId });
     }
 
     render(): ReactNode {
         return (
-            <form onSubmit={this.handleSubmit}>
-                <label>
-                    Name:
-                    <input type="text" value={this.state.name} onChange={this.handleChange} />
-                </label>
-                <input type="submit" value="Submit" />
-            </form>
+            <div className="container">
+                <div>
+                    {this.state.address}
+                </div>
+                <div>
+                    <input type="text" placeholder={this.state.name} value={this.state.name} onChange={this.handleChange} />
+                </div>
+                <div style={{ width: "30%" }}>
+                    {this.state.registrar &&
+                    <ENSInfo provider={this.props.provider}
+                        signer={this.props.signer}
+                        registrar={this.state.registrar}
+                        address={this.state.address}
+                        tokenId={this.state.tokenId} />}
+                </div>
+                <div style={{ width: "30%" }}>
+                    {this.state.radicalFreehold &&
+                    <FreeholdInfo provider={this.props.provider}
+                        signer={this.props.signer}
+                        freehold={this.state.radicalFreehold}
+                        address={this.state.address}
+                        tokenId={this.state.tokenId} />}
+                </div>
+                <div style={{ width: "30%" }}>
+                    {this.state.radicalLeasehold &&
+                    <LeaseholdInfo provider={this.props.provider}
+                        signer={this.props.signer}
+                        leasehold={this.state.radicalLeasehold}
+                        address={this.state.address}
+                        tokenId={this.state.tokenId} />}
+                </div>
+            </div>
         )
     }
 }
