@@ -40,9 +40,15 @@ class LeaseholdInfo extends Component<LeaseholdInfoProps, LeaseholdInfoState> {
         if (!this.props.leasehold) return
         if (!this.props.tokenId) return
 
-        const price = await this.props.leasehold.functions.priceOf(this.props.tokenId.toString())
-        const owner = await this.props.leasehold.functions.ownerOf(this.props.tokenId.toString())
-        this.setState({ price, owner })
+        try {
+            console.log(this.props.tokenId, this.props.tokenId.toString())
+            const price = await this.props.leasehold.functions.priceOf(this.props.tokenId.toString())
+            const owner = await this.props.leasehold.functions.ownerOf(this.props.tokenId.toString())
+            this.setState({ price, owner })
+        } catch (e) {
+            console.log(e)
+        }
+
     }
 
     changeDeposit = (event: any) => {
