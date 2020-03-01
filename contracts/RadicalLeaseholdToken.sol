@@ -1,4 +1,4 @@
-pragma solidity ^0.6.0;
+pragma solidity ^0.5.0;
 
 import "openzeppelin-solidity/contracts/token/ERC721/ERC721.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
@@ -40,7 +40,7 @@ contract RadicalLeaseholdToken is ERC721, Ownable {
 
     // Calculate rent per year with the rate and price
     function rentOf(uint256 tokenId) public view onlyExistingToken(tokenId) returns (uint256) {
-        return priceOf(tokenId).mul(1000).div(rateOf(tokenId));
+        return priceOf(tokenId).div(10000).mul(rateOf(tokenId));
     }
 
     // Mint new token with initial price and rate
@@ -87,11 +87,14 @@ contract RadicalLeaseholdToken is ERC721, Ownable {
         // Trade token for price
         address from = ownerOf(tokenId);
         _transferFrom(from, msg.sender, tokenId);
-        payable(from).transfer(price);
+        address(uint160(from)).transfer(price);
 
         // Prepay rent
         uint256 leftover = msg.value - price;
         RadicalManager(owner()).depositRent.value(leftover)(tokenId);
+
+        // Make new owner the domain's "controller"
+        RadicalManager(owner()).changeDomainController(tokenId, msg.sender);
 
         emit Sold(from, msg.sender, tokenId, price);
     }

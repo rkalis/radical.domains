@@ -20,11 +20,17 @@ module.exports = {
         return new HDWalletProvider(`${process.env.MNEMONIC}`, `https://kovan.infura.io/v3/${process.env.INFURA_ID}`)
       },
       network_id: 42
+    },
+    goerli: {
+      provider: function() {
+        return new HDWalletProvider(`${process.env.MNEMONIC}`, `https://goerli.infura.io/v3/${process.env.INFURA_ID}`)
+      },
+      network_id: 5
     }
   },
   compilers: {
     solc: {
-       version: "0.6.3"
+       version: "0.5.13"
     }
   },
   plugins: [
