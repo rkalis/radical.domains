@@ -6,6 +6,7 @@ import "./BaseRegistrar.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./RadicalFreeholdToken.sol";
 import "./RadicalLeaseholdToken.sol";
+import "./BaseRegistrarController.sol";
 
 contract RadicalManager is IERC721Receiver {
     using SafeMath for uint256;
@@ -14,6 +15,7 @@ contract RadicalManager is IERC721Receiver {
     RadicalFreeholdToken public freehold;
     // ENS ens = ENS(0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e);
     BaseRegistrar registrar = BaseRegistrar(0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85);
+    BaseRegistrarController registrarController = BaseRegistrarController(0x283Af0B28c62C092C9727F1Ee09c02CA627EB7F5);
 
     bytes4 constant ERC721_RECEIVED = 0x150b7a02;
 
@@ -29,7 +31,7 @@ contract RadicalManager is IERC721Receiver {
 
     modifier onlyLeaseholderOrContract(uint256 tokenId) {
         require(
-            msg.sender == leasehold.ownerOf(tokenId) || msg.sender == address(leasehold),
+            msg.sender == leasehold.ownerOf(tokenId) || msg.sender == address(leasehold) || msg.sender == address(this),
             "RadicalManager: action can only be performed by leaseholder or contract"
         );
         _;
@@ -88,6 +90,15 @@ contract RadicalManager is IERC721Receiver {
         leasehold.burn(msg.sender, tokenId);
         registrar.transferFrom(address(this), msg.sender, tokenId);
         emit Unradicalised(msg.sender, tokenId);
+    }
+
+    function depositRentAndRenew(uint256 tokenId, string memory name, uint duration) public payable onlyLeaseholderOrContract(tokenId){
+        uint price = registrarController.rentPrice(name, duration);
+        require(msg.value >= price, "Funds are insufficient to renew domain name");
+        registrarController.renew.value(price)(name, duration);
+        uint forRent = msg.value - price; // forRent is >= 0
+
+        this.depositRent.value(forRent)(tokenId);
     }
 
     // Deposit rent as prepayment
