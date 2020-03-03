@@ -24,7 +24,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "pretest": "test/start_ganache_fork.sh &> /dev/null &",
+    "pretest": "test/start_ganache_fork.sh > /dev/null &",
     "test": "truffle test || (npm run posttest && exit 1)",
     "posttest": "pkill -f ganache-cli &> /dev/null",
     "eject": "react-scripts eject",
