@@ -9,9 +9,10 @@ import FreeholdInfo from './FreeholdInfo'
 import LeaseholdInfo from './LeaseholdInfo'
 import { BigNumber } from 'ethers/utils'
 
+const validName = (name: string) => name.split('.').length === 2 && name.endsWith('.eth')
+
 type NameQueryProps = {
-  provider?: Provider
-  signer?: Signer
+  updateTokenId: (tokenId: BigNumber) => void,
 }
 
 type NameQueryState = {
@@ -26,8 +27,8 @@ type NameQueryState = {
 
 class NameQuery extends Component<NameQueryProps, NameQueryState> {
     state : NameQueryState = {
-        name: 'radical5.eth',
-        address: ''
+        name: '',
+        address: '',
     }
 
     componentDidMount() {
@@ -35,41 +36,41 @@ class NameQuery extends Component<NameQueryProps, NameQueryState> {
     }
 
     componentDidUpdate(prevProps: NameQueryProps) {
-        if (this.props.signer === prevProps.signer) return
-        this.loadData()
+        // if (this.props.p === prevProps.signer) return
+        // this.loadData()
       }
 
     async loadData() {
-        if (!this.props.signer) return
-        if (!this.props.provider) return
+        // if (!this.props.signer) return
+        // if (!this.props.provider) return
 
-        const registrar = new ethers.Contract(registrarAddress, BaseRegistrar, this.props.signer)
-        const radicalManager = new ethers.Contract(managerAddress, RadicalManager, this.props.provider)
-        const radicalFreehold = new ethers.Contract(freeholdAddress, RadicalFreehold, this.props.provider)
-        const radicalLeasehold = new ethers.Contract(leaseholdAddress, RadicalLeasehold, this.props.signer)
+        // const registrar = new ethers.Contract(registrarAddress, BaseRegistrar, this.props.signer)
+        // const radicalManager = new ethers.Contract(managerAddress, RadicalManager, this.props.provider)
+        // const radicalFreehold = new ethers.Contract(freeholdAddress, RadicalFreehold, this.props.provider)
+        // const radicalLeasehold = new ethers.Contract(leaseholdAddress, RadicalLeasehold, this.props.signer)
 
-        const address = await this.props.signer.getAddress()
-        const tokenId = ethers.utils.bigNumberify(ethers.utils.keccak256(Buffer.from(this.state.name.split('.')[0], 'utf8')));
-        console.log(tokenId.toString())
+        // const address = await this.props.signer.getAddress()
+        // const tokenId = ethers.utils.bigNumberify(ethers.utils.keccak256(Buffer.from(this.state.name.split('.')[0], 'utf8')));
+        // console.log(tokenId.toString())
 
-        this.setState({ registrar, radicalManager, radicalFreehold, radicalLeasehold, address, tokenId })
+        // this.setState({ registrar, radicalManager, radicalFreehold, radicalLeasehold, address, tokenId })
     }
 
-    handleChange = (event: any) => {
-        const tokenId = ethers.utils.bigNumberify(ethers.utils.keccak256(Buffer.from(event.target.value.split('.')[0], 'utf8')));
-        this.setState({ name: event.target.value, tokenId });
+    handleClick = () => {
+        const tokenId = ethers.utils.bigNumberify(ethers.utils.keccak256(Buffer.from(this.state.name.split('.')[0], 'utf8')))
+        this.props.updateTokenId(tokenId)
     }
 
     render(): ReactNode {
         return (
             <div className="container">
-                <div>
-                    {this.state.address}
+                <div className="center">
+                    <div className="container">
+                    <input style={{width: '80%'}} type="text" onChange={(ev) => this.setState({ name: ev.target.value })}/>
+                    <button disabled={!validName(this.state.name)} style={{width: '20%'}} onClick={this.handleClick}>Search</button>
+                    </div>
                 </div>
-                <div>
-                    <input type="text" placeholder={this.state.name} value={this.state.name} onChange={this.handleChange} />
-                </div>
-                <div style={{ width: "30%" }}>
+                {/* <div style={{ width: "30%" }}>
                     {this.state.registrar &&
                     <ENSInfo provider={this.props.provider}
                         signer={this.props.signer}
@@ -92,7 +93,7 @@ class NameQuery extends Component<NameQueryProps, NameQueryState> {
                         leasehold={this.state.radicalLeasehold}
                         address={this.state.address}
                         tokenId={this.state.tokenId} />}
-                </div>
+                </div> */}
             </div>
         )
     }
