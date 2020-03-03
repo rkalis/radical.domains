@@ -16,3 +16,7 @@ function encode(price, rent) {
     str = str + _getIt(rent);
     return str
 }
+
+module.exports = {
+    encode
+}

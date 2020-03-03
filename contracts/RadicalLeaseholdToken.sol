@@ -40,7 +40,7 @@ contract RadicalLeaseholdToken is ERC721, Ownable {
 
     // Calculate rent per year with the rate and price
     function rentOf(uint256 tokenId) public view onlyExistingToken(tokenId) returns (uint256) {
-        return priceOf(tokenId).div(10000).mul(rateOf(tokenId));
+        return priceOf(tokenId).div(1000).mul(rateOf(tokenId));
     }
 
     // Mint new token with initial price and rate
@@ -50,7 +50,7 @@ contract RadicalLeaseholdToken is ERC721, Ownable {
         _tokenRate[tokenId] = rate;
     }
 
-    function burn(address to, uint256 tokenId) public onlyOwner{
+    function burn(address to, uint256 tokenId) public onlyOwner {
         _burn(to, tokenId);
         delete _tokenPrice[tokenId];
         delete _tokenRate[tokenId];
@@ -80,21 +80,20 @@ contract RadicalLeaseholdToken is ERC721, Ownable {
         uint256 price = priceOf(tokenId);
         require(msg.value >= price, "RadicalLeaseholdToken: did not provide right amount of ETH for purchase");
 
-        // Settle existing rent payments
+        // First send the money to the previous holder (as the token might get repossessed)
+        address from = ownerOf(tokenId);
+        address(uint160(from)).transfer(price);
+
+        // Settle existing rent payments (might cause temporary repossession)
         RadicalManager(owner()).collectRent(tokenId);
         RadicalManager(owner()).withdrawRent(tokenId, 2 ** 256 - 1);
 
-        // Trade token for price
-        address from = ownerOf(tokenId);
-        _transferFrom(from, msg.sender, tokenId);
-        address(uint160(from)).transfer(price);
+        // Transfer token (might have been repossessed)
+        _transferFrom(ownerOf(tokenId), msg.sender, tokenId);
 
         // Prepay rent
         uint256 leftover = msg.value - price;
         RadicalManager(owner()).depositRent.value(leftover)(tokenId);
-
-        // Make new owner the domain's "controller"
-        RadicalManager(owner()).changeDomainController(tokenId, msg.sender);
 
         emit Sold(from, msg.sender, tokenId, price);
     }
@@ -104,5 +103,11 @@ contract RadicalLeaseholdToken is ERC721, Ownable {
         address from = ownerOf(tokenId);
         _transferFrom(from, to, tokenId);
         emit Repossessed(from, to, tokenId);
+    }
+
+    // On every transfer (in any way) the domain's controller is set to the new leaseholder
+    function _transferFrom(address from, address to, uint256 tokenId) internal {
+        RadicalManager(owner()).changeDomainController(tokenId, to);
+        super._transferFrom(from, to, tokenId);
     }
 }

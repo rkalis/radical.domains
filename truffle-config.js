@@ -30,7 +30,11 @@ module.exports = {
   },
   compilers: {
     solc: {
-       version: "0.5.13"
+       version: "0.5.13",
+       settings: {
+         optimisations: true,
+         runs: 200
+       }
     }
   },
   plugins: [

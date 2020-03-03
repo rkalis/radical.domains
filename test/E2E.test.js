@@ -1,45 +1,149 @@
 /* global web3, artifacts, contract, before */
-const MockRegistry = artifacts.require('MockRegistry');
-const RadicalFreeholdToken = artifacts.require('RadicalFreeholdToken');
-const RadicalLeaseholdToken = artifacts.require('RadicalLeaseholdToken');
-const RadicalManager = artifacts.require('RadicalManager');
-const { assert } = require("chai");
-const truffleAssert = require('truffle-assertions');
+const RadicalFreeholdToken = artifacts.require('RadicalFreeholdToken')
+const RadicalLeaseholdToken = artifacts.require('RadicalLeaseholdToken')
+const RadicalManager = artifacts.require('RadicalManager')
+const BaseRegistrar = artifacts.require('BaseRegistrar')
+const ENS = artifacts.require('ENS')
+const { assert } = require("chai")
+const truffleAssert = require('truffle-assertions')
+const { encode } = require('./misc')
+const { time } = require('@openzeppelin/test-helpers')
+const { ethers } = require('ethers')
+require('dotenv').config()
 
 contract('End to End', (accounts) => {
+  let radicalManager
+  let radicalFreeholdToken
+  let radicalLeaseholdToken
+  let registrar
+  let ens
 
-  let mockRegistry;
-  let radicalManager;
-  let radicalFreeholdToken;
-  let radicalLeaseholdToken;
-
-  const registryDeployerAccount = accounts[0];
-  const radicalDeployerAccount = accounts[1];
-  const ownerOfUnderlyingToken = accounts[2];
+  const ensOwner = accounts[1];
+  const initialBuyer = accounts[2]
+  const secondBuyer = accounts[3]
+  const tokenId = web3.utils.toBN(web3.utils.soliditySha3(process.env.ENS_TEST_LABEL))
+  const namehash = ethers.utils.namehash(`${process.env.ENS_TEST_LABEL}.eth`)
 
   before(async () => {
-      mockRegistry = await MockRegistry.new({from: registryDeployerAccount});
-      radicalManager = await RadicalManager.new({from: radicalDeployerAccount});
+    radicalManager = await RadicalManager.deployed()
+    radicalFreeholdToken = await RadicalFreeholdToken.at(await radicalManager.freehold())
+    radicalLeaseholdToken = await RadicalLeaseholdToken.at(await radicalManager.leasehold())
+    registrar = await BaseRegistrar.at('0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85')
+    ens = await ENS.at('0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e')
+    assert.equal(await registrar.ownerOf(tokenId), ensOwner, 'Prerequisite not met: incorrect ENS name owner (try running pkill -f ganache-cli)')
   });
 
-  describe("Register, radicalise, sell, collect rent", () => {
-    it('follows the happy path correctly', async () => {
+  // TODO: Test more side conditions
+  // TODO: Test negative cases
+  describe('Happy path', () => {
+    it('domain can be radicalised', async () => {
+      // given
+      const price = web3.utils.toBN(1e12) // wei
+      const rate = web3.utils.toBN(10000) // 1000% (10 = 1%)
 
-      //register
-      const nameToUse = web3.utils.stringToHex("radical.eth");
-      const tx1 = await mockRegistry.register(nameToUse, {from: ownerOfUnderlyingToken});
-      truffleAssert.eventEmitted(tx1, "NewRegistration", {registrant: ownerOfUnderlyingToken, name: nameToUse});
+      // when
+      const tx = await registrar.methods['safeTransferFrom(address,address,uint256,bytes)'](ensOwner, radicalManager.address, tokenId, encode(price, rate), { from: ensOwner })
+      const radicalTx = await truffleAssert.createTransactionResult(radicalManager, tx.tx)
 
-      // radicalise
-      const tokenId = web3.utils.keccak256(nameToUse);
-      const tx2 = await mockRegistry.methods['safeTransferFrom(address,address,uint256,bytes)'](
-        ownerOfUnderlyingToken,
-        radicalManager.address,
-        tokenId,
-        '0x0000000000000000000000000000000000000000000000000de0b6b3a76400000000000000000000000000000000000000000000000000000000000000001000',
-        { from : ownerOfUnderlyingToken }
-      );
+      // then
+      assert.equal(await registrar.ownerOf(tokenId), radicalManager.address, 'Domain should be transferred to smart contract')
+      assert.equal(await ens.owner(namehash), ensOwner, 'Owner should stay in control of domain')
+      truffleAssert.eventEmitted(radicalTx, 'Radicalised', { owner: ensOwner, tokenId }, 'Domain should be radicalised')
+    })
 
-    });
-  });
-});
+    it('leasehold can be bought from initial owner', async () => {
+      // given
+      const value = web3.utils.toBN(2e12) // wei
+
+      // when
+      const tx = await radicalLeaseholdToken.buy(tokenId, { from: initialBuyer, value })
+      const managerTx = await truffleAssert.createTransactionResult(radicalManager, tx.tx)
+
+      // then
+      assert.equal(await ens.owner(namehash), initialBuyer, 'Buyer should get control of domain')
+      truffleAssert.eventEmitted(tx, 'Sold', { from: ensOwner, to: initialBuyer, tokenId, price: web3.utils.toBN(1e12) }, 'Domain should be sold')
+      truffleAssert.eventEmitted(managerTx, 'RentDeposited', { depositor: initialBuyer, tokenId, amount: web3.utils.toBN(1e12) }, 'Rent should be deposited')
+    })
+
+    it('leasehold\'s price can be changed', async () => {
+      // given
+      const newPrice = web3.utils.toBN(2e12) // wei
+
+      // when
+      const tx = await radicalLeaseholdToken.setPriceOf(tokenId, newPrice, { from: initialBuyer })
+      const managerTx = await truffleAssert.createTransactionResult(radicalManager, tx.tx)
+
+      // then
+      assert.deepEqual(newPrice, await radicalLeaseholdToken.priceOf(tokenId), 'Price should be changed')
+      assert.equal(await ens.owner(namehash), initialBuyer, 'Owner should stay in control of domain')
+      truffleAssert.eventEmitted(tx, 'PriceChanged', { owner: initialBuyer, tokenId, oldPrice: web3.utils.toBN(1e12), newPrice: web3.utils.toBN(2e12) }, 'Price should be changed')
+      truffleAssert.eventEmitted(managerTx, 'RentCollected', null, 'Rent should be collected')
+    })
+
+    it('leasehold can be bought after price change', async () => {
+      // given
+      const value = web3.utils.toBN(3e12) // wei
+
+      // when
+      const tx = await radicalLeaseholdToken.buy(tokenId, { from: secondBuyer, value })
+      const managerTx = await truffleAssert.createTransactionResult(radicalManager, tx.tx)
+
+      // then
+      assert.equal(await ens.owner(namehash), secondBuyer, 'Buyer should get control of domain')
+      truffleAssert.eventEmitted(tx, 'Sold', { from: initialBuyer, to: secondBuyer, tokenId, price: web3.utils.toBN(2e12) }, 'Domain should be sold')
+      truffleAssert.eventEmitted(managerTx, 'RentWithdrawn', (ev) => (
+        ev.withdrawer === initialBuyer && ev.tokenId.eq(tokenId) && ev.amount.gt(web3.utils.toBN(0.99e12)) && ev.amount.lt(web3.utils.toBN(1e12))
+      ), 'Old rent should be withdrawn')
+      truffleAssert.eventEmitted(managerTx, 'RentDeposited', { depositor: secondBuyer, tokenId, amount: web3.utils.toBN(1e12) }, 'New rent should be deposited')
+    })
+
+    it('rent can be collected', async () => {
+      // given
+      await time.increase(1e6)
+
+      // when
+      const tx = await radicalManager.collectRent(tokenId, { from: ensOwner })
+
+      // then
+      assert.equal(await ens.owner(namehash), secondBuyer, 'Owner should stay in control of domain')
+      truffleAssert.eventEmitted(tx, 'RentCollected', (ev) => (
+        ev.collector === ensOwner && ev.tokenId.eq(tokenId) && ev.amount.gt(web3.utils.toBN(0.63e12)) && ev.amount.lt(web3.utils.toBN(0.64e12))
+      ), 'Rent should be collected')
+    })
+
+    it('rent can be withdrawn', async () => {
+      // when
+      const tx = await radicalManager.withdrawRent(tokenId, web3.utils.toBN(1e12), { from: secondBuyer })
+
+      // then
+      assert.equal(await ens.owner(namehash), secondBuyer, 'Owner should stay in control of domain')
+      truffleAssert.eventEmitted(tx, 'RentWithdrawn', (ev) => (
+        ev.withdrawer === secondBuyer && ev.tokenId.eq(tokenId) && ev.amount.gt(web3.utils.toBN(0.36e12)) && ev.amount.lt(web3.utils.toBN(0.37e12))
+      ), 'Rent should be withdrawn')
+    })
+
+    it('leasehold can be repossessed', async () => {
+      // given
+      await time.increase(1e6)
+
+      // when
+      const tx = await radicalManager.collectRent(tokenId, { from: ensOwner })
+      const leaseholdTx = await truffleAssert.createTransactionResult(radicalLeaseholdToken, tx.tx)
+
+      // then
+      assert.equal(await ens.owner(namehash), ensOwner, 'Freeholder should get control of domain')
+      truffleAssert.eventEmitted(tx, 'RentCollected', { collector: ensOwner, tokenId, amount: web3.utils.toBN(0) }, 'Rent should be collected')
+      truffleAssert.eventEmitted(leaseholdTx, 'Repossessed', { from: secondBuyer, to: ensOwner, tokenId }, 'Leasehold token should be repossessed')
+    })
+
+    it('leasehold and freehold can be unradicalised', async () => {
+      // when
+      const tx = await radicalManager.unradicalise(tokenId, { from: ensOwner })
+
+      // then
+      assert.equal(await ens.owner(namehash), ensOwner, 'Buyer should get control of domain')
+      assert.equal(await registrar.ownerOf(tokenId), ensOwner, 'Domain should be transferred to unradicaliser')
+      truffleAssert.eventEmitted(tx, 'Unradicalised', { owner: ensOwner, tokenId }, 'Domain should be unradicalised')
+    })
+  })
+})

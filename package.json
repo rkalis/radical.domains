@@ -24,7 +24,9 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "pretest": "test/start_ganache_fork.sh &> /dev/null &",
+    "test": "truffle test || (npm run posttest && exit 1)",
+    "posttest": "pkill -f ganache-cli &> /dev/null",
     "eject": "react-scripts eject",
     "truffle": "truffle"
   },
@@ -44,6 +46,7 @@
     ]
   },
   "devDependencies": {
+    "@openzeppelin/test-helpers": "^0.5.4",
     "@truffle/hdwallet-provider": "^1.0.32",
     "truffle": "^5.1.15",
     "truffle-assertions": "^0.9.2",
