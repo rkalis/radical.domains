@@ -6,3 +6,4 @@ bridge.log
 dist/
 yarn-error.log
 npm-debug.log
+.idea/

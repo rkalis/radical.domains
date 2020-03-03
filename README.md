@@ -59,6 +59,15 @@ The tests run against a fork of Ropsten so that it can be tested against the rea
 yarn test
 ```
 
+
+**Error: `source: not found`**
+
+Experienced on Ubuntu 18.04 LTS
+
+Fix:
+1. Put `export ` before all variables in your `.env` file 
+1. Use `source .env` manually
+
 ### Deployment
 
 ```

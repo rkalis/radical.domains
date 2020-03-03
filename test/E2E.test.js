@@ -18,7 +18,7 @@ contract('End to End', (accounts) => {
   let registrar
   let ens
 
-  const ensOwner = accounts[1];
+  const ensOwner = accounts[0];
   const initialBuyer = accounts[2]
   const secondBuyer = accounts[3]
   const tokenId = web3.utils.toBN(web3.utils.soliditySha3(process.env.ENS_TEST_LABEL))
