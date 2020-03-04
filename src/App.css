@@ -9,15 +9,7 @@ body {
   margin: 0;
 }
 
-.main {
-  width: 80%;
-  /* background-color: #05050585; */
-  background-color: #e2e2e2b2;
-  border-radius: 10px;
-  margin: 70px auto 0 auto;
-  padding: 50px;
-}
-
+/*
 .title {
   text-align: center;
   padding-bottom: 30px;
@@ -93,7 +85,6 @@ td {
   padding: 8px;
 }
 
-/* Clear floats after the columns */
 .row:after {
   content: "";
   display: table;
@@ -114,12 +105,6 @@ td {
   font-weight: bolder;
 }
 
-
-
-
-
-
-
 @media (max-width: 768px) {
   .content {
       width: 80%;
@@ -128,4 +113,4 @@ td {
   .main {
       padding: 20px;
   }
-}
+} */

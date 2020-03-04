@@ -1,0 +1,22 @@
+.form {
+  width: 500px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+}
+
+.form .input {
+  width: 100%;
+}
+
+.form .button {
+  /* width: 20%; */
+  width: 75px;
+  float: right;
+}
+
+@media (max-width: 768px) {
+  .form {
+    width: 300px;
+  }
+}
