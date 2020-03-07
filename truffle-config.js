@@ -14,19 +14,22 @@ module.exports = {
       provider: function() {
         return new HDWalletProvider(`${process.env.MNEMONIC}`, `https://rinkeby.infura.io/v3/${process.env.INFURA_ID}`)
       },
-      network_id: 4
+      network_id: 4,
+      gas: 0x989680
     },
     kovan: {
       provider: function() {
         return new HDWalletProvider(`${process.env.MNEMONIC}`, `https://kovan.infura.io/v3/${process.env.INFURA_ID}`)
       },
-      network_id: 42
+      network_id: 42,
+      gas: 0x989680
     },
     goerli: {
       provider: function() {
         return new HDWalletProvider(`${process.env.MNEMONIC}`, `https://goerli.infura.io/v3/${process.env.INFURA_ID}`)
       },
-      network_id: 5
+      network_id: 5,
+      gas: 0x989680
     }
   },
   compilers: {

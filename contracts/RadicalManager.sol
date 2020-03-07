@@ -22,9 +22,8 @@ contract RadicalManager is IERC721Receiver {
     mapping (uint256 => uint256) _depositedRent;
     mapping (uint256 => uint256) _lastRentSettlement;
 
-    // TODO
     event Radicalised(address indexed owner, uint256 indexed tokenId);
-    event Unradicalised(address indexed owner, uint256 indexed tokenId);
+    event Deradicalised(address indexed owner, uint256 indexed tokenId);
     event RentDeposited(address indexed depositor, uint256 indexed tokenId, uint256 amount);
     event RentWithdrawn(address indexed withdrawer, uint256 indexed tokenId, uint256 amount);
     event RentCollected(address indexed collector, uint256 indexed tokenId, uint256 amount);
@@ -83,13 +82,13 @@ contract RadicalManager is IERC721Receiver {
         return ERC721_RECEIVED;
     }
 
-    function unradicalise(uint256 tokenId) public {
-        require(freehold.ownerOf(tokenId) == msg.sender, "Only freehold owners can unradicalise tokens");
-        require(leasehold.ownerOf(tokenId) == msg.sender, "Only leasehold owners can unradicalise tokens");
+    function deradicalise(uint256 tokenId) public {
+        require(freehold.ownerOf(tokenId) == msg.sender, "Only freehold owners can deradicalise tokens");
+        require(leasehold.ownerOf(tokenId) == msg.sender, "Only leasehold owners can deradicalise tokens");
         freehold.burn(msg.sender, tokenId);
         leasehold.burn(msg.sender, tokenId);
         registrar.transferFrom(address(this), msg.sender, tokenId);
-        emit Unradicalised(msg.sender, tokenId);
+        emit Deradicalised(msg.sender, tokenId);
     }
 
     function depositRentAndRenew(uint256 tokenId, string memory name, uint duration) public payable onlyLeaseholderOrContract(tokenId){
@@ -103,7 +102,7 @@ contract RadicalManager is IERC721Receiver {
 
     // Deposit rent as prepayment
     function depositRent(uint256 tokenId) public payable onlyLeaseholderOrContract(tokenId) {
-        _depositedRent[tokenId] = _depositedRent[tokenId].add(msg.value);
+        _depositedRent[tokenId] = rentBalance(tokenId).add(msg.value);
 
         address leaseholder = leasehold.ownerOf(tokenId);
         emit RentDeposited(leaseholder, tokenId, msg.value);
@@ -113,14 +112,14 @@ contract RadicalManager is IERC721Receiver {
     // Can only be withdrawn if it is not claimable by the freeholder
     // CAUTION: If no/little rent is left, the leasehold is at risk of repossession
     function withdrawRent(uint256 tokenId, uint256 amount) public onlyLeaseholderOrContract(tokenId) {
-        uint256 rent = calculateCurrentRent(tokenId);
-        uint256 depositedRent = _depositedRent[tokenId];
+        uint256 rent = collectableRent(tokenId);
+        uint256 depositedRent = rentBalance(tokenId);
         require(depositedRent >= rent, "RadicalManager: not enough rent deposited");
 
         uint256 available = depositedRent.sub(rent);
         uint256 withdrawAmount = available < amount ? available : amount;
 
-        _depositedRent[tokenId] = _depositedRent[tokenId].sub(withdrawAmount);
+        _depositedRent[tokenId] = depositedRent.sub(withdrawAmount);
         address leaseholder = leasehold.ownerOf(tokenId);
         if (withdrawAmount > 0) address(uint160(leaseholder)).transfer(withdrawAmount);
         emit RentWithdrawn(leaseholder, tokenId, withdrawAmount);
@@ -132,29 +131,40 @@ contract RadicalManager is IERC721Receiver {
     // If the deposited rent can not cover the rent owed, the leasehold token is
     // repossessed to the freeholder.
     function collectRent(uint256 tokenId) public {
-        uint256 rent = calculateCurrentRent(tokenId);
+        uint256 rent = collectableRent(tokenId);
+        uint256 rentBalance = rentBalance(tokenId);
         _lastRentSettlement[tokenId] = block.timestamp;
         address freeholder = freehold.ownerOf(tokenId);
 
         // If the leaseholder can't pay their rent, their property is repossed
-        if (_depositedRent[tokenId] < rent) {
-            rent = _depositedRent[tokenId];
+        if (rentBalance < rent) {
+            rent = rentBalance;
             leasehold.repossess(freeholder, tokenId);
         }
 
-        // // Transfer rent to freeholder
-        _depositedRent[tokenId] = _depositedRent[tokenId].sub(rent);
+        // Transfer rent to freeholder
+        _depositedRent[tokenId] = rentBalance.sub(rent);
         if (rent > 0) address(uint160(freeholder)).transfer(rent);
         emit RentCollected(freeholder, tokenId, rent);
     }
 
-    function calculateCurrentRent(uint256 tokenId) private view returns (uint256) {
+    function rentBalance(uint256 tokenId) public view returns (uint256) {
+        return _depositedRent[tokenId];
+    }
+
+    function collectableRent(uint256 tokenId) public view returns (uint256) {
         uint256 lastSettlement = _lastRentSettlement[tokenId];
         uint256 timePassed = block.timestamp.sub(lastSettlement);
         uint256 rentPerYear = leasehold.rentOf(tokenId);
         uint256 rent = rentPerYear.div(52 weeks).mul(timePassed); // Not entirely accurate due to leap years
 
         return rent;
+    }
+
+    function withdrawableRent(uint256 tokenId) public view returns (uint256) {
+        uint256 rentBalance = rentBalance(tokenId);
+        uint256 rentDue = collectableRent(tokenId);
+        return rentBalance > rentDue ? rentBalance - rentDue : 0;
     }
 
     function changeDomainController(uint256 tokenId, address newController) external onlyLeaseholdContract {
