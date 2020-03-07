@@ -82,7 +82,7 @@ class ENSInfo extends Component<ENSInfoProps, ENSInfoState> {
     this.props.reloadDashboard()
   }
 
-  canDeradicalise = () => this.state.freeholdOwner && this.state.freeholdOwner === this.state.leaseholdOwner
+  canDeradicalise = () => this.state.freeholdOwner === this.props.address && this.state.leaseholdOwner === this.props.address
   changePrice = (event: any) => this.setState({ price: parseEther(event.target.value).toString() })
   changeRate = (event: any) => this.setState({ rate: bigNumberify(Math.ceil(Number(event.target.value) * 10)).toString() })
 
