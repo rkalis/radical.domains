@@ -34,7 +34,7 @@ class ENSInfo extends Component<ENSInfoProps, ENSInfoState> {
     freeholdOwner: '',
     leaseholdOwner: '',
     price: '',
-    rate: ''
+    rate: '',
   }
 
   componentDidMount() {
@@ -53,7 +53,7 @@ class ENSInfo extends Component<ENSInfoProps, ENSInfoState> {
 
     try {
       console.log(this.props.tokenId, this.props.tokenId.toString())
-      const owner = await this.props.contracts.registrar.functions.ownerOf(this.props.tokenId.toString())
+      const owner = await this.props.contracts.registrar.functions.ownerOf(this.props.tokenId)
       this.setState({ owner })
     } catch (e) {
       console.log(e)
@@ -61,8 +61,8 @@ class ENSInfo extends Component<ENSInfoProps, ENSInfoState> {
     }
 
     try {
-      const freeholdOwner = await this.props.contracts?.freehold?.functions.ownerOf(this.props.tokenId?.toString())
-      const leaseholdOwner = await this.props.contracts?.leasehold?.functions.ownerOf(this.props.tokenId?.toString())
+      const freeholdOwner = await this.props.contracts?.freehold?.functions.ownerOf(this.props.tokenId)
+      const leaseholdOwner = await this.props.contracts?.leasehold?.functions.ownerOf(this.props.tokenId)
       this.setState({ freeholdOwner, leaseholdOwner })
     } catch (e) {
       console.log(e)
@@ -77,7 +77,7 @@ class ENSInfo extends Component<ENSInfoProps, ENSInfoState> {
   }
 
   deradicalise = async () => {
-    const tx = await this.props.contracts?.manager?.deradicalise(this.props.tokenId?.toString())
+    const tx = await this.props.contracts?.manager?.deradicalise(this.props.tokenId)
     await tx.wait(1)
     this.props.reloadDashboard()
   }

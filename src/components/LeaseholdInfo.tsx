@@ -21,10 +21,10 @@ type LeaseholdInfoProps = {
 
 type LeaseholdInfoState = {
   owner: string
-  newPrice: string
-  deposit: string
-  amount: string
-  initialDeposit: string
+  newPrice: BigNumber
+  deposit: BigNumber
+  amount: BigNumber
+  initialDeposit: BigNumber
   price?: BigNumber
   rate?: BigNumber
   rentBalance?: BigNumber
@@ -35,10 +35,10 @@ type LeaseholdInfoState = {
 class LeaseholdInfo extends Component<LeaseholdInfoProps, LeaseholdInfoState> {
   state: LeaseholdInfoState = {
     owner: '',
-    newPrice: '',
-    deposit: '',
-    amount: '',
-    initialDeposit: '',
+    newPrice: new BigNumber(0),
+    deposit: new BigNumber(0),
+    amount: new BigNumber(0),
+    initialDeposit: new BigNumber(0),
   }
 
   componentDidMount() {
@@ -57,12 +57,12 @@ class LeaseholdInfo extends Component<LeaseholdInfoProps, LeaseholdInfoState> {
     if (!this.props.tokenId) return
 
     try {
-      const owner: string = await this.props.contracts.leasehold.ownerOf(this.props.tokenId.toString())
-      const price: BigNumber = await this.props.contracts.leasehold.priceOf(this.props.tokenId.toString())
-      const rate: BigNumber = await this.props.contracts.leasehold.rateOf(this.props.tokenId.toString())
-      const rentBalance: BigNumber = await this.props.contracts.manager.rentBalance(this.props.tokenId.toString())
-      const withdrawableRent: BigNumber = await this.props.contracts.manager.withdrawableRent(this.props.tokenId.toString())
-      const rentPerYear: BigNumber = await this.props.contracts.leasehold.rentOf(this.props.tokenId.toString())
+      const owner: string = await this.props.contracts.leasehold.ownerOf(this.props.tokenId)
+      const price: BigNumber = await this.props.contracts.leasehold.priceOf(this.props.tokenId)
+      const rate: BigNumber = await this.props.contracts.leasehold.rateOf(this.props.tokenId)
+      const rentBalance: BigNumber = await this.props.contracts.manager.rentBalance(this.props.tokenId)
+      const withdrawableRent: BigNumber = await this.props.contracts.manager.withdrawableRent(this.props.tokenId)
+      const rentPerYear: BigNumber = await this.props.contracts.leasehold.rentOf(this.props.tokenId)
       const secondsLeft: BigNumber = withdrawableRent.mul(31556952).div(rentPerYear)
       this.setState({ owner, price, rate, rentBalance, withdrawableRent, secondsLeft })
     } catch (e) {
@@ -72,32 +72,32 @@ class LeaseholdInfo extends Component<LeaseholdInfoProps, LeaseholdInfoState> {
   }
 
   withdrawRent = async () => {
-    const tx = await this.props.contracts?.manager?.withdrawRent(this.props.tokenId?.toString(), this.state.amount)
+    const tx = await this.props.contracts?.manager?.withdrawRent(this.props.tokenId, this.state.amount)
     await tx.wait(1)
     this.props.reloadDashboard()
   }
 
   depositRent = async () => {
-    const tx = await this.props.contracts?.manager?.depositRent(this.props.tokenId?.toString(), { value: this.state.amount })
+    const tx = await this.props.contracts?.manager?.depositRent(this.props.tokenId, { value: this.state.amount })
     await tx.wait(1)
     this.props.reloadDashboard()
   }
 
   setPrice = async () => {
-    const tx = await this.props.contracts?.leasehold?.setPriceOf(this.props.tokenId?.toString(), this.state.newPrice)
+    const tx = await this.props.contracts?.leasehold?.setPriceOf(this.props.tokenId, this.state.newPrice)
     await tx.wait(1)
     this.props.reloadDashboard()
   }
 
   buy = async () => {
-    const tx = await this.props.contracts?.leasehold?.buy(this.props.tokenId?.toString(), { value: this.state.price?.add(this.state.initialDeposit) })
+    const tx = await this.props.contracts?.leasehold?.buy(this.props.tokenId, { value: this.state.price?.add(this.state.initialDeposit) })
     await tx.wait(1)
     this.props.reloadDashboard()
   }
 
-  changeAmount = (event: any) => this.setState({ amount: parseEther(event.target.value).toString() })
-  changeNewPrice = (event: any) => this.setState({ newPrice: parseEther(event.target.value).toString() })
-  changeInitialDeposit = (event: any) => this.setState({ initialDeposit: parseEther(event.target.value).toString() })
+  changeAmount = (event: any) => this.setState({ amount: parseEther(event.target.value) })
+  changeNewPrice = (event: any) => this.setState({ newPrice: parseEther(event.target.value) })
+  changeInitialDeposit = (event: any) => this.setState({ initialDeposit: parseEther(event.target.value) })
 
   render(): ReactNode {
     if (!this.state.owner) {
@@ -144,9 +144,9 @@ class LeaseholdInfo extends Component<LeaseholdInfoProps, LeaseholdInfoState> {
         <Card.Header as="h5">Leasehold info</Card.Header>
         <ListGroup className="list-group-flush">
           <ListGroupItem>Owned by {formatAddress(this.state.owner)}</ListGroupItem>
-          <ListGroupItem>Price: Ξ{formatEther(this.state.price?.toString() || '')}</ListGroupItem>
+          <ListGroupItem>Price: Ξ{formatEther(this.state.price || 0)}</ListGroupItem>
           <ListGroupItem>Yearly rate: {(Number(this.state.rate?.toString()) / 10).toString()}%</ListGroupItem>
-          <ListGroupItem>Rent remaining: Ξ{formatEther(this.state.withdrawableRent?.toString() || '')} ({formatTimeRemaining(this.state.secondsLeft)})</ListGroupItem> {/* TODO: Auto-update / interpolate by the second */}
+          <ListGroupItem>Rent remaining: Ξ{formatEther(this.state.withdrawableRent || 0)} ({formatTimeRemaining(this.state.secondsLeft)})</ListGroupItem> {/* TODO: Auto-update / interpolate by the second */}
         </ListGroup>
         {cardBody}
       </Card>

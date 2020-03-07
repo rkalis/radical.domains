@@ -48,8 +48,8 @@ class FreeholdInfo extends Component<FreeholdInfoProps, FreeholdInfoState> {
     if (!this.props.tokenId) return
 
     try {
-      const owner = await this.props.contracts.freehold.ownerOf(this.props.tokenId.toString())
-      const collectableRent = await this.props.contracts.manager.collectableRent(this.props.tokenId.toString())
+      const owner = await this.props.contracts.freehold.ownerOf(this.props.tokenId)
+      const collectableRent = await this.props.contracts.manager.collectableRent(this.props.tokenId)
       this.setState({ owner, collectableRent })
     } catch (e) {
       console.log(e)
@@ -78,7 +78,7 @@ class FreeholdInfo extends Component<FreeholdInfoProps, FreeholdInfoState> {
         <Card.Header as="h5">Freehold info</Card.Header>
         <ListGroup className="list-group-flush">
           <ListGroupItem>Owned by {formatAddress(this.state.owner)}</ListGroupItem>
-          <ListGroupItem>Collectable rent: Ξ{formatEther(this.state.collectableRent?.toString() || '')}</ListGroupItem> {/* TODO: Auto-update / interpolate by the second */}
+          <ListGroupItem>Collectable rent: Ξ{formatEther(this.state.collectableRent || 0)}</ListGroupItem> {/* TODO: Auto-update / interpolate by the second */}
         </ListGroup>
         <Card.Body>
           {this.state.owner === this.props.address &&
