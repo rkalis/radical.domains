@@ -72,32 +72,50 @@ class LeaseholdInfo extends Component<LeaseholdInfoProps, LeaseholdInfoState> {
   }
 
   withdrawRent = async () => {
+    if(this.state.amount.eq(0))
+      return;
     const tx = await this.props.contracts?.manager?.withdrawRent(this.props.tokenId, this.state.amount)
     await tx.wait(1)
     this.props.reloadDashboard()
   }
 
   depositRent = async () => {
+    if(this.state.amount.eq(0))
+      return;
     const tx = await this.props.contracts?.manager?.depositRent(this.props.tokenId, { value: this.state.amount })
     await tx.wait(1)
     this.props.reloadDashboard()
   }
 
   setPrice = async () => {
+    if(this.state.amount.eq(0))
+      return;
     const tx = await this.props.contracts?.leasehold?.setPriceOf(this.props.tokenId, this.state.newPrice)
     await tx.wait(1)
     this.props.reloadDashboard()
   }
 
   buy = async () => {
+    if(this.state.amount.eq(0))
+      return;
     const tx = await this.props.contracts?.leasehold?.buy(this.props.tokenId, { value: this.state.price?.add(this.state.initialDeposit) })
     await tx.wait(1)
     this.props.reloadDashboard()
   }
 
-  changeAmount = (event: any) => this.setState({ amount: parseEther(event.target.value) })
-  changeNewPrice = (event: any) => this.setState({ newPrice: parseEther(event.target.value) })
-  changeInitialDeposit = (event: any) => this.setState({ initialDeposit: parseEther(event.target.value) })
+  parseEtherSafe(target_value: string): BigNumber {
+    let rt = parseFloat(target_value) || 0.0;
+
+    try {
+      return parseEther(rt.toString());
+    }catch (e) {
+      return new BigNumber(0)
+    }
+  }
+
+  changeAmount = (event: any) => {this.setState({ amount: this.parseEtherSafe(event.target.value)})};
+  changeNewPrice = (event: any) => this.setState({ newPrice: this.parseEtherSafe(event.target.value) })
+  changeInitialDeposit = (event: any) => this.setState({ initialDeposit: this.parseEtherSafe(event.target.value) })
 
   render(): ReactNode {
     if (!this.state.owner) {
