@@ -30,6 +30,7 @@ type LeaseholdInfoState = {
   rentBalance?: BigNumber
   withdrawableRent?: BigNumber
   secondsLeft?: BigNumber
+  rentPerYear: BigNumber
 }
 
 class LeaseholdInfo extends Component<LeaseholdInfoProps, LeaseholdInfoState> {
@@ -39,6 +40,7 @@ class LeaseholdInfo extends Component<LeaseholdInfoProps, LeaseholdInfoState> {
     deposit: new BigNumber(0),
     amount: new BigNumber(0),
     initialDeposit: new BigNumber(0),
+    rentPerYear: new BigNumber(1),
   }
 
   componentDidMount() {
@@ -64,7 +66,7 @@ class LeaseholdInfo extends Component<LeaseholdInfoProps, LeaseholdInfoState> {
       const withdrawableRent: BigNumber = await this.props.contracts.manager.withdrawableRent(this.props.tokenId)
       const rentPerYear: BigNumber = await this.props.contracts.leasehold.rentOf(this.props.tokenId)
       const secondsLeft: BigNumber = withdrawableRent.mul(31556952).div(rentPerYear)
-      this.setState({ owner, price, rate, rentBalance, withdrawableRent, secondsLeft })
+      this.setState({ owner, price, rate, rentBalance, withdrawableRent, secondsLeft, rentPerYear })
     } catch (e) {
       console.log(e)
       this.setState({ owner: '' })
@@ -113,7 +115,16 @@ class LeaseholdInfo extends Component<LeaseholdInfoProps, LeaseholdInfoState> {
     }
   }
 
-  changeAmount = (event: any) => {this.setState({ amount: this.parseEtherSafe(event.target.value)})};
+  changeAmount = (event: any) => {
+    let ether = this.parseEtherSafe(event.target.value);
+    this.setState({ amount: ether})
+
+    let secondsLeft = ether.mul(31556952).div(this.state.rentPerYear);
+    const el = document.getElementById('rent_length');
+    if (el) {
+      el.innerHTML = formatTimeRemaining(secondsLeft);
+    }
+  };
   changeNewPrice = (event: any) => this.setState({ newPrice: this.parseEtherSafe(event.target.value) })
   changeInitialDeposit = (event: any) => this.setState({ initialDeposit: this.parseEtherSafe(event.target.value) })
 
@@ -136,6 +147,10 @@ class LeaseholdInfo extends Component<LeaseholdInfoProps, LeaseholdInfoState> {
               <Button onClick={() => this.depositRent()} variant="secondary">Deposit Rent</Button>
               <Button onClick={() => this.withdrawRent()} variant="secondary">Withdraw Rent</Button>
             </InputGroup.Append>
+
+          </InputGroup>
+          <InputGroup>
+            <p id="rent_length"></p>
           </InputGroup>
           <InputGroup>
             <FormControl placeholder="Price (in Ξ)" aria-label="Price (in Ξ)" onChange={this.changeNewPrice} />
