@@ -1,6 +1,6 @@
 import './App.css'
 import React, { Component, ReactNode } from 'react'
-import { Web3Provider, Provider } from 'ethers/providers'
+import { Web3Provider } from 'ethers/providers'
 import { BigNumber } from 'ethers/utils'
 import {
   BrowserRouter as Router,
@@ -13,16 +13,11 @@ import DomainDashboard from './components/DomainDashboard'
 import NameQuery from './components/NameQuery'
 import Web3Connector from './components/Web3Connector'
 
-declare let window: any
-declare let web3: any
-
 const styles = {
   main: {
-    width: '90%',
+    width: '100vw',
+    height: '100vh',
     backgroundColor: '#e2e2e2b2',
-    borderRadius: '10px',
-    margin: '70px auto 0 auto',
-    padding: '50px',
   },
 }
 
@@ -56,7 +51,7 @@ class App extends Component<AppProps, AppState> {
             <div style={styles.main}>
               <Header />
               <Web3Connector callback={(provider) => this.updateProviderAndAddress(provider)} />
-              <NameQuery updateTokenId={ (tokenId: BigNumber) => this.updateTokenId(tokenId) } />
+              <NameQuery updateTokenId={(tokenId: BigNumber) => this.updateTokenId(tokenId)} />
               <DomainDashboard provider={this.state.provider} address={this.state.address} tokenId={this.state.tokenId} />
             </div>
           </Route>

@@ -1,8 +1,31 @@
-import { Component, ReactNode } from 'react'
+import React, { Component, ReactNode } from 'react'
 import { Web3Provider } from 'ethers/providers'
 import { BigNumber } from 'ethers/utils'
+import ENSInfo from './ENSInfo'
+import { Contract } from 'ethers'
+import { registrarAddress, managerAddress, freeholdAddress, leaseholdAddress } from '../addresses'
+import { BaseRegistrar, RadicalManager, RadicalFreehold, RadicalLeasehold } from '../abis'
+import CardDeck from 'react-bootstrap/CardDeck'
+import FreeholdInfo from './FreeholdInfo'
+import LeaseholdInfo from './LeaseholdInfo'
 
-type DomainDashboardState = {}
+const styles = {
+  dashboard: {
+    margin: '2%',
+  },
+}
+
+export type Contracts = {
+  registrar?: Contract,
+  manager?: Contract,
+  freehold?: Contract,
+  leasehold?: Contract,
+}
+
+type DomainDashboardState = {
+  contracts?: Contracts
+  refresh: boolean
+}
 
 type DomainDashboardProps = {
   provider?: Web3Provider,
@@ -12,52 +35,65 @@ type DomainDashboardProps = {
 
 class DomainDashboard extends Component<DomainDashboardProps, DomainDashboardState> {
   state: DomainDashboardState = {
+    refresh: true
   }
 
+  componentDidMount() {
+    this.loadData()
+  }
+
+  componentDidUpdate(prevProps: DomainDashboardProps) {
+    if (this.props === prevProps) return
+    this.loadData()
+  }
+
+  loadData() {
+    if (!this.props.provider) return
+    if (!this.props.tokenId) return
+
+    const contracts = {
+      registrar: new Contract(registrarAddress, BaseRegistrar, this.props.provider.getSigner()),
+      manager: new Contract(managerAddress, RadicalManager, this.props.provider.getSigner()),
+      freehold: new Contract(freeholdAddress, RadicalFreehold, this.props.provider.getSigner()),
+      leasehold: new Contract(leaseholdAddress, RadicalLeasehold, this.props.provider.getSigner()),
+    }
+
+    this.setState({ contracts })
+  }
+
+  reloadDashboard = () => this.setState({ refresh: !this.state.refresh })
+
   render(): ReactNode {
-    // if (!this.props.provider) return ''
-    if (this.props.tokenId) return this.props.tokenId.toString()
+    if (this.props.tokenId) return (
+      <CardDeck style={styles.dashboard}>
+        <ENSInfo
+          provider={this.props.provider}
+          address={this.props.address}
+          tokenId={this.props.tokenId}
+          contracts={this.state.contracts}
+          reloadDashboard={this.reloadDashboard}
+          refresh={this.state.refresh}
+        />
+        <FreeholdInfo
+          provider={this.props.provider}
+          address={this.props.address}
+          tokenId={this.props.tokenId}
+          contracts={this.state.contracts}
+          reloadDashboard={this.reloadDashboard}
+          refresh={this.state.refresh}
+        />
+        <LeaseholdInfo
+          provider={this.props.provider}
+          address={this.props.address}
+          tokenId={this.props.tokenId}
+          contracts={this.state.contracts}
+          reloadDashboard={this.reloadDashboard}
+          refresh={this.state.refresh}
+        />
+      </CardDeck>
+    )
     return ''
   }
 }
 
 export default DomainDashboard;
-
-// {/* <div style={{ width: "30%" }}>
-//                     {this.state.registrar &&
-//                     <ENSInfo provider={this.props.provider}
-//                         signer={this.props.signer}
-//                         registrar={this.state.registrar}
-//                         address={this.state.address}
-//                         tokenId={this.state.tokenId} />}
-//                 </div>
-//                 <div style={{ width: "30%" }}>
-//                     {this.state.radicalFreehold &&
-//                     <FreeholdInfo provider={this.props.provider}
-//                         signer={this.props.signer}
-//                         freehold={this.state.radicalFreehold}
-//                         address={this.state.address}
-//                         tokenId={this.state.tokenId} />}
-//                 </div>
-//                 <div style={{ width: "30%" }}>
-//                     {this.state.radicalLeasehold &&
-//                     <LeaseholdInfo provider={this.props.provider}
-//                         signer={this.props.signer}
-//                         leasehold={this.state.radicalLeasehold}
-//                         address={this.state.address}
-//                         tokenId={this.state.tokenId} />}
-//                 </div> */}
-
-// if (!this.props.signer) return
-// if (!this.props.provider) return
-
-// const registrar = new ethers.Contract(registrarAddress, BaseRegistrar, this.props.signer)
-// const radicalManager = new ethers.Contract(managerAddress, RadicalManager, this.props.provider)
-// const radicalFreehold = new ethers.Contract(freeholdAddress, RadicalFreehold, this.props.provider)
-// const radicalLeasehold = new ethers.Contract(leaseholdAddress, RadicalLeasehold, this.props.signer)
-
-// const address = await this.props.signer.getAddress()
-// const tokenId = ethers.utils.bigNumberify(ethers.utils.keccak256(Buffer.from(this.state.name.split('.')[0], 'utf8')));
-// console.log(tokenId.toString())
-
-// this.setState({ registrar, radicalManager, radicalFreehold, radicalLeasehold, address, tokenId })

@@ -166,14 +166,14 @@ contract('End to End', (accounts) => {
     })
 
 
-    it('leasehold and freehold can be unradicalised', async () => {
+    it('leasehold and freehold can be deradicalised', async () => {
       // when
-      const tx = await radicalManager.unradicalise(tokenId, { from: ensOwner })
+      const tx = await radicalManager.deradicalise(tokenId, { from: ensOwner })
 
       // then
       assert.equal(await ens.owner(namehash), ensOwner, 'Buyer should get control of domain')
-      assert.equal(await registrar.ownerOf(tokenId), ensOwner, 'Domain should be transferred to unradicaliser')
-      truffleAssert.eventEmitted(tx, 'Unradicalised', { owner: ensOwner, tokenId }, 'Domain should be unradicalised')
+      assert.equal(await registrar.ownerOf(tokenId), ensOwner, 'Domain should be transferred to deradicaliser')
+      truffleAssert.eventEmitted(tx, 'Deradicalised', { owner: ensOwner, tokenId }, 'Domain should be deradicalised')
     })
   })
 })

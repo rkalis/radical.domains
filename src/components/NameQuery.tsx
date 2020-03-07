@@ -2,6 +2,9 @@ import './NameQuery.css'
 import React, { Component, ReactNode } from 'react'
 import { ethers } from 'ethers'
 import { BigNumber } from 'ethers/utils'
+import InputGroup from 'react-bootstrap/InputGroup'
+import FormControl from 'react-bootstrap/FormControl'
+import Button from 'react-bootstrap/Button'
 
 const validName = (name: string) => name.split('.').length === 2 && name.endsWith('.eth')
 
@@ -25,10 +28,16 @@ class NameQuery extends Component<NameQueryProps, NameQueryState> {
 
   render(): ReactNode {
     return (
-      <div className="form">
-        <input className="input" type="text" onChange={(ev) => this.setState({ name: ev.target.value })} />
-        <button className="button" disabled={!validName(this.state.name)} onClick={this.handleClick}>Search</button>
-      </div>
+      <InputGroup className="mb-3 form">
+        <FormControl
+          placeholder="ENS name"
+          aria-label="ENS name"
+          onChange={(ev: any) => this.setState({ name: ev.target.value })}
+        />
+        <InputGroup.Append>
+          <Button disabled={!validName(this.state.name)} variant="secondary" onClick={this.handleClick}>Search</Button>
+        </InputGroup.Append>
+      </InputGroup>
     )
   }
 }

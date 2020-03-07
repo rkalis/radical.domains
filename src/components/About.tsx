@@ -1,5 +1,4 @@
 import React, { CSSProperties } from 'react'
-import { Link } from 'react-router-dom'
 
 const styles = {
   main: {
@@ -10,7 +9,7 @@ const styles = {
 const About = () => {
   return (
     <div style={styles.main}>
-      <p>Some explanation of how this works...</p>
+      {/* TOD: Some explanation */}
       <p>Made at ETHLondon 2020 by Richard Brady, Rosco Kalis, Evert Kors and Kiki Cakir</p>
     </div>
   )
